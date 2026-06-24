@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Catch The Coin</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #222;
+        }
+
+        canvas {
+            display: block;
+            margin: auto;
+            background: #87CEEB;
+            border: 2px solid black;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="gameCanvas" width="600" height="400"></canvas>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+let score = 0;
+
+const player = {
+    x: 250,
+    y: 350,
+    width: 80,
+    height: 20,
+    speed: 7
+};
+
+const coin = {
+    x: Math.random() * 560,
+    y: 0,
+    size: 20,
+    speed: 3
+};
+
+const keys = {};
+
+document.addEventListener("keydown", e => {
+    keys[e.key] = true;
+});
+
+document.addEventListener("keyup", e => {
+    keys[e.key] = false;
+});
+
+function update() {
+    if (keys["ArrowLeft"]) {
+        player.x -= player.speed;
+    }
+
+    if (keys["ArrowRight"]) {
+        player.x += player.speed;
+    }
+
+    if (player.x < 0) player.x = 0;
+    if (player.x > canvas.width - player.width)
+        player.x = canvas.width - player.width;
+
+    coin.y += coin.speed;
+
+    if (
+        coin.x < player.x + player.width &&
+        coin.x + coin.size > player.x &&
+        coin.y < player.y + player.height &&
+        coin.y + coin.size > player.y
+    ) {
+        score++;
+        coin.x = Math.random() * 560;
+        coin.y = 0;
+    }
+
+    if (coin.y > canvas.height) {
+        coin.x = Math.random() * 560;
+        coin.y = 0;
+    }
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Player
+    ctx.fillStyle = "blue";
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+
+    // Coin
+    ctx.fillStyle = "gold";
+    ctx.beginPath();
+    ctx.arc(
+        coin.x + coin.size / 2,
+        coin.y + coin.size / 2,
+        coin.size / 2,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+
+    // Score
+    ctx.fillStyle = "black";
+    ctx.font = "24px Arial";
+    ctx.fillText("Score: " + score, 10, 30);
+}
+
+function gameLoop() {
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
+
+</body>
+</html>
